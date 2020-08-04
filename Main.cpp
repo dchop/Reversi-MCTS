@@ -8,22 +8,20 @@ using namespace std;
 
 void testListMoves() {
     State myState;
-    vector<Move> moves = myState.listMoves('T', 'F');
+    Reversi game;
+    vector<Move> moves = game.listMoves(myState.getState(), 'T', 'F');
+
+    game.printBoard(myState.getState());
 
     printf("Possible Moves:\n");
     for (auto &move: moves) {
         printf("%d, %d\n", move.x, move.y);
     }
-
 }
 
 int main() {
 
-    // Reversi newBoard;
-    // newBoard.printBoard();
-
     testListMoves();
-
     
     return 0;
 }
