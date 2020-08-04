@@ -13,7 +13,7 @@ void testListMoves() {
 
     game.printBoard(myState.getState());
 
-    printf("Possible Moves:\n");
+    printf("Possible Moves for T:\n");
     for (auto &move: moves) {
         printf("%d, %d\n", move.x, move.y);
     }
