@@ -7,25 +7,28 @@ class Node {
 
     public:
 
-        State *board; 
+        State *state; 
 
         Node *parent;
 
         vector<Node*> children;
 
+        // Last action made on the board
+        Move action;
+
         int reward;
 
         int visits;
 
-        Node(State *board) {
-            this->board = board;
+        Node(State *state) {
+            this->state = state;
             this->parent = NULL;
             this->reward = 0;
             this->visits = 0;
         }
 
-        Node(State *board, Node *parent) {
-            this->board = board;
+        Node(State *state, Node *parent) {
+            this->state = state;
             this->parent = parent;
             this->reward = 0;
             this->visits = 0;
