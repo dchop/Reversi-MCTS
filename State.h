@@ -11,6 +11,8 @@ class State {
 
         vector<vector<char> > getState();
 
+        char getPlayer();
+
     private:
         // Indicates who makes the next move for the current board state
         char nextPlayer;
