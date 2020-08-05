@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "Reversi.h"
+#include "State.h"
 #define EMPTY '-'
 
 const int boardSize = 8;
@@ -28,8 +29,17 @@ void Reversi::printBoard(vector<vector<char> > const &board) {
     cout << "    0   1   2   3   4   5   6   7 " << endl;
 }
 
-void Reversi::makeMove(vector<vector<char> > &board) {
-
+vector<vector <char>> Reversi::makeMove(vector<vector<char> > const &board, Move newMove) {
+    State tempBoard;
+    vector<vector<char> > temp = tempBoard.getState();
+    temp = board;
+    temp[newMove.x][newMove.y] = 'T';
+    // std::vector<int>::iterator it;
+    // it = board.insert(newMove.x, newMove.y, 'T');
+    // board[newMove.x][newMove.y] = 'T';
+    vector<vector<char>> boardWithFlippedTiles = flipPieces(temp, newMove);
+    return boardWithFlippedTiles;
+    // call tilesToFlipFunction 
 
 }
 
@@ -48,15 +58,18 @@ void Reversi::checkWin(vector<vector<char> > const &board) {
 
 }
 
-void Reversi::flipPieces(vector<vector<char> > &board) {
-
-
+vector<vector<char>> Reversi::flipPieces(vector<vector<char> > &board, Move newMove) {
+    for(std::vector<Move>::size_type i = 0; i != newMove.tilesToFlip.size(); i++) {
+     board[newMove.tilesToFlip[i].x][newMove.tilesToFlip[i].y] = 'T';
+    }   
+return board;
 }
 
 // Return a list of moves [x,y]
 vector<Move> Reversi::listMoves(vector<vector<char> > const &board, char currentPlayer, char opponent) {
 
     vector<Move> possibleMoves;
+    vector<Move> flipTiles;
     int x, y;
     int dx, dy;
 
@@ -80,8 +93,51 @@ vector<Move> Reversi::listMoves(vector<vector<char> > const &board, char current
                         continue;
 
                     Move newMove = this->validMoveDirection(board, x, y, dx, dy, opponent);
-                    if (newMove.x != -1 && !findMove(possibleMoves, newMove))
+                    Move returnFromFindMove = findMove(possibleMoves, newMove);
+                    if (newMove.x != -1 &&  returnFromFindMove.x != -1){
+                        x = newMove.x;
+                        y = newMove.y;
+                        while (1){
+                            x -= direction[0];
+                            y -= direction[1];
+                            if (x == i && y == j){
+                                break;
+                            }
+                            Move tempMove = {x, y};
+                            // flipTiles.push_back(tempMove);
+                            for(std::vector<Move>::size_type i = 0; i != possibleMoves.size(); i++) {
+                                if(possibleMoves[i].x == returnFromFindMove.x && possibleMoves[i].y){
+                                    possibleMoves[i].tilesToFlip.push_back(tempMove);
+                                    break;
+                                }
+                                // printf("moves are: %d %d", newMove.tilesToFlip[i].x, newMove.tilesToFlip[i].x);
+                            }
+                            // newMove.tilesToFlip.push_back(tempMove);
+                            // possibleMoves.push_back(newMove);
+                        }
+                    }
+                    if (newMove.x != -1 && returnFromFindMove.x == -1){
+                        // if (move in possibleMoves){
+                        //     append the flipped pieces (coordinates) of this current move to the one thats already in the possibleMoves of its flipped pieces vector of the struct
+                        // }
+                        // check i
+                        
+                    // If its already in the possible moves then it affects tiles in more than one
+                    // direction
+                        x = newMove.x;
+                        y = newMove.y;
+                        while (1){
+                            x -= direction[0];
+                            y -= direction[1];
+                            if (x == i && y == j){
+                                break;
+                            }
+                            Move tempMove = {x, y};
+                            flipTiles.push_back(tempMove);
+                            newMove.tilesToFlip.push_back(tempMove); 
+                        }
                         possibleMoves.push_back(newMove);
+                    }
                 }
             }
         }
@@ -119,13 +175,13 @@ Move Reversi::validMoveDirection(vector<vector<char> > const &board, int x, int 
 }
 
 // Check if the move is already in the list of moves
-bool Reversi::findMove(vector<Move> const &moves, Move const &targetMove) {
+Move Reversi::findMove(vector<Move> const &moves, Move const &targetMove) {
 
     for (auto &move: moves) {
 
         if (move.x == targetMove.x && move.y == targetMove.y)
-            return true;
+            return Move(move.x, move.y);
     }
-
-    return false;
+    // return the index where the move is
+    return Move(-1, -1);
 }

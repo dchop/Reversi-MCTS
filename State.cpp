@@ -17,8 +17,10 @@ State::State() {
     }
     board[3][3] = 'T';
     board[3][4] = 'F';
-    board[4][3] = 'F';
-    board[4][4] = 'T';
+    board[3][5] = 'T';
+    board[4][4] = 'F';
+    board[4][5] = 'F';
+    
 
     // Black moves first
     nextPlayer = 'F';

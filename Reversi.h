@@ -8,6 +8,7 @@ struct Move {
     int x;
     int y;
     Move(int a, int b) : x(a), y(b) {};
+    vector<Move> tilesToFlip;// tiles to flip vector 
 };
 
 class Reversi {
@@ -16,11 +17,11 @@ class Reversi {
 
         void printBoard(vector<vector<char> > const &board); // Prints the board
 
-        void makeMove(vector<vector<char> > &board);
+        vector<vector<char>> makeMove(vector<vector<char> > const &board, Move newMove);
 
         void checkWin(vector<vector<char> > const &board);
 
-        void flipPieces(vector<vector<char> > &board);
+        vector<vector<char>> flipPieces(vector<vector<char> > &board, Move newMove);
 
         // Return a list of moves [x,y]
         vector<Move> listMoves(vector<vector<char> > const &board, char currentPlayer, char opponent);
@@ -34,6 +35,6 @@ class Reversi {
         Move validMoveDirection(vector<vector<char> > const &board, int x, int y, int dx, int dy, char opponent);
 
         // Check if the move is already in the list of moves
-        bool findMove(vector<Move> const &moves, Move const &targetMove);
+        Move findMove(vector<Move> const &moves, Move const &targetMove);
 
 };
