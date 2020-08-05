@@ -15,7 +15,7 @@ const int moveDirections[8][2] = {
 using namespace std;
 
 // Prints the board
-void Reversi::printBoard(vector<vector<char> > board) {
+void Reversi::printBoard(vector<vector<char> > const &board) {
     cout << endl << "  +---+---+---+---+---+---+---+---+ "<< endl;
     for (int i = 0; i < 8; i++){
         cout << i << " |";
@@ -28,12 +28,12 @@ void Reversi::printBoard(vector<vector<char> > board) {
     cout << "    0   1   2   3   4   5   6   7 " << endl;
 }
 
-void Reversi::makeMove(vector<vector<char> > board) {
+void Reversi::makeMove(vector<vector<char> > &board) {
 
 
 }
 
-void Reversi::checkWin(vector<vector<char> > board) {
+void Reversi::checkWin(vector<vector<char> > const &board) {
     int boardFull;
 
     for (int i = 0; i < 8; i++){ // Needs more checks
@@ -48,13 +48,13 @@ void Reversi::checkWin(vector<vector<char> > board) {
 
 }
 
-void Reversi::flipPieces(vector<vector<char> > board) {
+void Reversi::flipPieces(vector<vector<char> > &board) {
 
 
 }
 
 // Return a list of moves [x,y]
-vector<Move> Reversi::listMoves(vector<vector<char> > board, char currentPlayer, char opponent) {
+vector<Move> Reversi::listMoves(vector<vector<char> > const &board, char currentPlayer, char opponent) {
 
     vector<Move> possibleMoves;
     int x, y;
@@ -95,7 +95,7 @@ bool Reversi::inBound(int x, int y) {
 }
 
 // Check if the current tile has any moves in the specified direction
-Move Reversi::validMoveDirection(vector<vector<char> > board, int x, int y, int dx, int dy, 
+Move Reversi::validMoveDirection(vector<vector<char> > const &board, int x, int y, int dx, int dy, 
     char opponent) {
 
     if (board[x][y] == opponent) {
@@ -119,7 +119,7 @@ Move Reversi::validMoveDirection(vector<vector<char> > board, int x, int y, int 
 }
 
 // Check if the move is already in the list of moves
-bool Reversi::findMove(vector<Move> moves, Move targetMove) {
+bool Reversi::findMove(vector<Move> const &moves, Move const &targetMove) {
 
     for (auto &move: moves) {
 
