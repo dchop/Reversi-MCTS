@@ -1,38 +1,41 @@
 #include <iostream>
 #include <vector>
-#include "State.h"
+#include "Node.h"
 using namespace std;
 
-class Node {
 
-    public:
+Node::Node(State *state) {
+    this->state = state;
+    this->parent = NULL;
+    this->reward = 0;
+    this->visits = 0;
+}
 
-        State *state; 
+Node::Node(State *state, Node *parent) {
+    this->state = state;
+    this->parent = parent;
+    this->reward = 0;
+    this->visits = 0;
+}
 
-        Node *parent;
+Node::Node() {
+    this->state = NULL;
+    this->parent = NULL;
+    this->reward = 0;
+    this->visits = 0;
+}
 
-        vector<Node*> children;
+Node::~Node() {
 
-        // Last action made on the board
-        Move action;
+    // Delete the root state
+    delete this->state;
 
-        int reward;
-
-        int visits;
-
-        Node(State *state) {
-            this->state = state;
-            this->parent = NULL;
-            this->reward = 0;
-            this->visits = 0;
+    // Need to delete the children as well
+    if (this->children.size() > 0) {
+        for (auto &child: children) {
+            // delete child->state;
+            delete child;
         }
+    }
 
-        Node(State *state, Node *parent) {
-            this->state = state;
-            this->parent = parent;
-            this->reward = 0;
-            this->visits = 0;
-        }
-
-        
-};
+}
