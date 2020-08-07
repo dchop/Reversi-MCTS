@@ -13,9 +13,10 @@ void testListMoves() {
     Move testMove = moves.at(0);
 
     game.printBoard(myState.getState());
-    // Call make move function which will call flipPieces function
+
+    // make move also calls flippedTiles
     vector<vector <char>> board = game.makeMove(myState.getState(), testMove);
-    // game.flipPieces(myState.getState(), testMove);
+
     game.printBoard(board);
 
     printf("Possible Moves for T:\n");

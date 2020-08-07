@@ -20,6 +20,8 @@ State::State() {
     board[3][5] = 'T';
     board[4][4] = 'F';
     board[4][5] = 'F';
+    board[5][5] = 'F';
+    board[6][5] = 'F';
     
 
     // Black moves first
