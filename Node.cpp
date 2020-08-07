@@ -33,7 +33,6 @@ Node::~Node() {
     // Need to delete the children as well
     if (this->children.size() > 0) {
         for (auto &child: children) {
-            // delete child->state;
             delete child;
         }
     }

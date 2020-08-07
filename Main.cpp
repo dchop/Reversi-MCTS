@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "Node.h"
+#include "Mcts.cpp"
 
 using namespace std;
 
