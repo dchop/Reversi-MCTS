@@ -3,11 +3,16 @@ CPPFLAGS = -std=c++14 -Wall -Wextra -Wfatal-errors -Wno-sign-compare -Wnon-virtu
 all: clean build run
 
 build:
-	g++ $(CPPFLAGS) Main.cpp Mcts.cpp Reversi.cpp State.cpp -o game
+	g++ $(CPPFLAGS) Main.cpp Mcts.cpp Reversi.cpp State.cpp Node.cpp -o game
 
 run:
 	./game
 	
 clean:
 	rm -f *.o* *.out* game
+
+mem: clean build mem-check
+
+mem-check:
+	valgrind --leak-check=full ./game
 
