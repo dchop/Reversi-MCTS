@@ -17,12 +17,12 @@ double uct(Node *root) {
     return reward / visits + c * sqrt(log(pVisits) / visits);
 }
 
-Node selection(Node *root) {
+Node* selection(Node *root) {
     // Find the best leaf node
 
     Node *temp = root;
     double val = 0;
-    int max = int(-INFINITY);
+    double max = -INFINITY;
 
     // Traverse down the tree by taking the path with the largest UCT value at level
     while (temp->children.size() > 0) {
@@ -37,10 +37,10 @@ Node selection(Node *root) {
         }
 
     }
-    return *temp;
+    return temp;
 }
 
-Node expand(Node *root, Reversi game) {
+Node* expand(Node *root, Reversi game) {
     // Expand all possible states from root
 
     char currentPlayer = root->state->getPlayer();
@@ -50,17 +50,15 @@ Node expand(Node *root, Reversi game) {
 
     // TODO: Need check is game over method
     // Check if the game is finished
-    if (true) {
-        for (auto &move: moveList) {
-            // Copy state and apply move
-            // Node *newNode = new Node();
-            Node *newNode;
-            root->children.push_back(newNode);
-        }
-
-        randomVal = rand() % root->children.size();
-        return *root->children[randomVal];
+    for (auto &move: moveList) {
+        // Copy state and apply move
+        // Node *newNode = new Node();
+        Node *newNode;
+        root->children.push_back(newNode);
     }
+
+    randomVal = rand() % root->children.size();
+    return root->children[randomVal];
 }
 
 // TODO: Need game functions to simulate game
@@ -102,7 +100,7 @@ void backpropgate(Node *root, double result) {
     }
 }
 
-Node bestChild(Node *root) {
+Node* bestChild(Node *root) {
 
     Node *maxNode = NULL;
     double val = 0;
@@ -116,7 +114,7 @@ Node bestChild(Node *root) {
             max = val;
         }
     }
-    return *maxNode;
+    return maxNode;
 }
 
 Move basicMCTS(Node *root, Reversi game, char player, int iterations=1000) {
@@ -131,5 +129,5 @@ Move basicMCTS(Node *root, Reversi game, char player, int iterations=1000) {
         backpropgate(child, result);
     }
 
-    return bestChild(root).action;
+    return bestChild(root)->action;
 }
