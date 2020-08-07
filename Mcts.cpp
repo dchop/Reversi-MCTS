@@ -2,9 +2,7 @@
 #include <vector>
 #include <math.h>
 #include <stdlib.h>
-#include "Node.cpp"
-#include "Reversi.h"
-#include "State.h"
+#include "Node.h"
 
 double uct(Node *root) {
 
@@ -19,27 +17,12 @@ double uct(Node *root) {
     return reward / visits + c * sqrt(log(pVisits) / visits);
 }
 
-Move basicMCTS(Node *root, Reversi game, char player, int iterations=1000) {
-    Node *leaf = NULL;
-    Node *child = NULL;
-    int result = 0;
-
-    for (int i = 0; i < iterations; i++) {
-        *leaf = selection(root);
-        *child = expand(leaf, game);
-        result = simulate(child, game);
-        backpropgate(child, result);
-    }
-
-    return bestChild(root).action;
-}
-
 Node selection(Node *root) {
     // Find the best leaf node
 
     Node *temp = root;
     double val = 0;
-    int max = -INFINITY;
+    int max = int(-INFINITY);
 
     // Traverse down the tree by taking the path with the largest UCT value at level
     while (temp->children.size() > 0) {
@@ -61,7 +44,8 @@ Node expand(Node *root, Reversi game) {
     // Expand all possible states from root
 
     char currentPlayer = root->state->getPlayer();
-    vector<Move> moveList = game.listMoves(root->state->getState(), root->state->);
+    char opponent = currentPlayer == 'T' ? 'F' : 'T';
+    vector<Move> moveList = game.listMoves(root->state->getState(), currentPlayer, opponent);
     int randomVal = 0;
 
     // TODO: Need check is game over method
@@ -133,4 +117,19 @@ Node bestChild(Node *root) {
         }
     }
     return *maxNode;
+}
+
+Move basicMCTS(Node *root, Reversi game, char player, int iterations=1000) {
+    Node *leaf = NULL;
+    Node *child = NULL;
+    int result = 0;
+
+    for (int i = 0; i < iterations; i++) {
+        *leaf = selection(root);
+        *child = expand(leaf, game);
+        result = simulate(child, game);
+        backpropgate(child, result);
+    }
+
+    return bestChild(root).action;
 }

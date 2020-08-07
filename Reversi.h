@@ -7,6 +7,7 @@ using namespace std;
 struct Move {
     int x;
     int y;
+    Move() {};
     Move(int a, int b) : x(a), y(b) {};
 };
 
