@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <tuple>
 #include "State.h"
 
 using namespace std;
@@ -16,6 +17,10 @@ class Reversi {
         bool checkWin(vector<vector<char> > const &board, int const &numMoves, int const &numOppMoves);
 
         int reward(vector<vector<char>> const &board, char const &player);
+
+        char winningPlayer(vector<vector<char> > const &board);
+
+        tuple<int, int> score(vector<vector<char>> const &board);
 
         void makeMove(State *state, Move &newMove);
 
@@ -37,7 +42,5 @@ class Reversi {
             char currentPlayer, char opponent);
 
         bool boardFull(vector<vector<char>> const &board);
-
-        char winningPlayer(vector<vector<char> > const &board);
 };
 #endif

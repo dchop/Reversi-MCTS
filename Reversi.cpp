@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <tuple>
 #include <stdlib.h>
 #include "Reversi.h"
 #define EMPTY '-'
@@ -40,8 +41,7 @@ bool Reversi::checkWin(vector<vector<char> > const &board, int const &numMoves, 
         return false;
 }
 
-
-char Reversi::winningPlayer(vector<vector<char>> const &board) {
+tuple<int, int> Reversi::score(vector<vector<char>> const &board) {
     int black = 0;
     int white = 0;
     for (int i = 0; i < boardSize; i++) {
@@ -52,6 +52,13 @@ char Reversi::winningPlayer(vector<vector<char>> const &board) {
                 black += 1;
         }
     }
+
+    return make_tuple(white, black);
+}
+
+char Reversi::winningPlayer(vector<vector<char>> const &board) {
+    int white, black;
+    tie(white, black) = this->score(board);
 
     if (white > black)
         return 'T';
@@ -176,18 +183,19 @@ Move Reversi::validMoveDirection(vector<vector<char> > const &board, int x, int 
 
         // Keep moving in direction until the piece is not the opponents piece
         while (board[x][y] == opponent) {
-            if (inBound(x,y)) {
-                x += dx;
-                y += dy;
-            }
-            else {
+            x += dx;
+            y += dy;
+            if (!inBound(x,y)) {
+                x -= dx;
+                y -= dy;
                 break;
             }
         }
 
         // Check if there is an empty spot
-        if (board[x][y] == EMPTY)
+        if (board[x][y] == EMPTY) {
             return Move(x, y, currentPlayer);
+        }
     }
     return Move(-1,-1);
 }
