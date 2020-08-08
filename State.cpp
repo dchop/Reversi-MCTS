@@ -31,3 +31,7 @@ State::State() {
 vector<vector<char> > State::getState() {
     return this->board;
 }
+
+char State::getPlayer() {
+    return this->nextPlayer;
+}
