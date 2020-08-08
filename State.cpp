@@ -17,15 +17,18 @@ State::State() {
     }
     board[3][3] = 'T';
     board[3][4] = 'F';
-    board[3][5] = 'T';
-    board[4][4] = 'F';
-    board[4][5] = 'F';
-    board[5][5] = 'F';
-    board[6][5] = 'F';
+    board[4][3] = 'F';
+    board[4][4] = 'T';
     
 
     // Black moves first
     nextPlayer = 'F';
+}
+
+State::State(const State *s2) {
+
+    this->nextPlayer = s2->nextPlayer;
+    this->board = s2->board;
 }
 
 vector<vector<char> > State::getState() {
@@ -34,4 +37,8 @@ vector<vector<char> > State::getState() {
 
 char State::getPlayer() {
     return this->nextPlayer;
+}
+
+void State::setMove(Move &pMove, char val) {
+    this->board[pMove.x][pMove.y] = val;
 }
