@@ -1,16 +1,11 @@
+#ifndef REVERSI_H
+#define REVERSI_H
 #include <iostream>
 #include <string>
 #include <vector>
+#include "State.h"
 
 using namespace std;
-
-struct Move {
-    int x;
-    int y;
-    Move() {};
-    Move(int a, int b) : x(a), y(b) {};
-    vector<Move> tilesToFlip;// tiles to flip vector 
-};
 
 class Reversi {
 
@@ -18,14 +13,19 @@ class Reversi {
 
         void printBoard(vector<vector<char> > const &board); // Prints the board
 
-        vector<vector<char>> makeMove(vector<vector<char> > const &board, Move newMove);
+        bool checkWin(vector<vector<char> > const &board, int const &numMoves, int const &numOppMoves);
 
-        void checkWin(vector<vector<char> > const &board);
+        int reward(vector<vector<char>> const &board, char const &player);
 
-        vector<vector<char>> flipPieces(vector<vector<char> > &board, Move newMove);
+        void makeMove(State *state, Move &newMove);
+
+        void flipPieces(State *state, Move &newMove);
 
         // Return a list of moves [x,y]
         vector<Move> listMoves(vector<vector<char> > const &board, char currentPlayer, char opponent);
+
+        // Check if the move is already in the list of moves
+        Move findMove(vector<Move> const &moves, Move const &targetMove);
 
     private:
     
@@ -33,9 +33,11 @@ class Reversi {
         bool inBound(int x, int y);
 
         // Check if the current tile has any moves in the specified direction
-        Move validMoveDirection(vector<vector<char> > const &board, int x, int y, int dx, int dy, char opponent);
+        Move validMoveDirection(vector<vector<char> > const &board, int x, int y, int dx, int dy,
+            char currentPlayer, char opponent);
 
-        // Check if the move is already in the list of moves
-        Move findMove(vector<Move> const &moves, Move const &targetMove);
+        bool boardFull(vector<vector<char>> const &board);
 
+        char winningPlayer(vector<vector<char> > const &board);
 };
+#endif

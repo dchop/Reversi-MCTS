@@ -1,9 +1,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdlib.h>
 #include "Reversi.h"
-#include "State.h"
 #define EMPTY '-'
+using namespace std;
 
 const int boardSize = 8;
 const int moveDirections[8][2] = {
@@ -13,7 +14,6 @@ const int moveDirections[8][2] = {
     {1, -1}, {-1, 1}, // SW, NE
 };
 
-using namespace std;
 
 // Prints the board
 void Reversi::printBoard(vector<vector<char> > const &board) {
@@ -22,43 +22,76 @@ void Reversi::printBoard(vector<vector<char> > const &board) {
         cout << i << " |";
         for (int j = 0; j < 8; j++)
         {
-            cout << " " << board[j][i] << " |";
+            cout << " " << board[i][j] << " |";
         }
         cout << endl << "  +---+---+---+---+---+---+---+---+ "<< endl;
     }
     cout << "    0   1   2   3   4   5   6   7 " << endl;
 }
 
-vector<vector <char>> Reversi::makeMove(vector<vector<char> > const &board, Move newMove) {
-    State tempBoard;
-    vector<vector<char> > temp = tempBoard.getState();
-    temp = board;
-    temp[newMove.x][newMove.y] = 'T';
-    vector<vector<char>> boardWithFlippedTiles = flipPieces(temp, newMove);
-    return boardWithFlippedTiles;
+bool Reversi::checkWin(vector<vector<char> > const &board, int const &numMoves, int const &numOppMoves) {
 
+    // Either the board is full or there is no move to be made
+    if (this->boardFull(board))
+        return true;
+    else if (numMoves == 0 && numOppMoves == 0)
+        return true;
+    else
+        return false;
 }
 
-void Reversi::checkWin(vector<vector<char> > const &board) {
-    int boardFull;
 
-    for (int i = 0; i < 8; i++){ // Needs more checks
-        for (int j = 0; j < 8; j++){
-            if (board[i][j] == '-'){
-                boardFull = 0;
-                break;
-            }
-            boardFull = 1;
+char Reversi::winningPlayer(vector<vector<char>> const &board) {
+    int black = 0;
+    int white = 0;
+    for (int i = 0; i < boardSize; i++) {
+        for (int j = 0; j < boardSize; j++) {
+            if (board[i][j] == 'T')
+                white += 1;
+            else if (board[i][j] == 'F')
+                black += 1;
         }
     }
 
+    if (white > black)
+        return 'T';
+    else if (white < black)
+        return 'F';
+    else
+        return 'D';
 }
 
-vector<vector<char>> Reversi::flipPieces(vector<vector<char> > &board, Move newMove) {
-    for(std::vector<Move>::size_type i = 0; i != newMove.tilesToFlip.size(); i++) {
-     board[newMove.tilesToFlip[i].x][newMove.tilesToFlip[i].y] = 'T';
-    }   
-return board;
+int Reversi::reward(vector<vector<char>> const &board, char const &player) {
+    char winner = this->winningPlayer(board);
+    char opponent = player == 'T' ? 'F' : 'T';
+
+    if (winner == player) 
+        return 1;
+    else if (winner == opponent)
+        return -1;
+    else // Game resulted in draw
+        return 0;
+}
+
+bool Reversi::boardFull(vector<vector<char>> const &board) {
+
+    for (int i = 0; i < boardSize; i++) {
+        for (int j = 0; j < boardSize; j++) {
+            if (board[i][j] == '-')
+                return false;
+        }
+    }
+    return true;
+}
+
+void Reversi::makeMove(State *state, Move &newMove) {
+    state->setMove(newMove, newMove.moveVal);
+    this->flipPieces(state, newMove);
+}
+
+void Reversi::flipPieces(State *state, Move &newMove) {
+    for (auto &tile:newMove.tilesToFlip)
+        state->setMove(tile, newMove.moveVal);
 }
 
 // Return a list of moves [x,y]
@@ -87,7 +120,7 @@ vector<Move> Reversi::listMoves(vector<vector<char> > const &board, char current
                     if (!inBound(x,y))
                         continue;
 
-                    Move newMove = this->validMoveDirection(board, x, y, dx, dy, opponent);
+                    Move newMove = this->validMoveDirection(board, x, y, dx, dy, currentPlayer, opponent);
                     Move returnFromFindMove = findMove(possibleMoves, newMove);
 
                     // If the move is already in the possible moves
@@ -137,7 +170,7 @@ bool Reversi::inBound(int x, int y) {
 
 // Check if the current tile has any moves in the specified direction
 Move Reversi::validMoveDirection(vector<vector<char> > const &board, int x, int y, int dx, int dy, 
-    char opponent) {
+    char currentPlayer, char opponent) {
 
     if (board[x][y] == opponent) {
 
@@ -154,7 +187,7 @@ Move Reversi::validMoveDirection(vector<vector<char> > const &board, int x, int 
 
         // Check if there is an empty spot
         if (board[x][y] == EMPTY)
-            return Move(x,y);
+            return Move(x, y, currentPlayer);
     }
     return Move(-1,-1);
 }
@@ -165,7 +198,7 @@ Move Reversi::findMove(vector<Move> const &moves, Move const &targetMove) {
     for (auto &move: moves) {
 
         if (move.x == targetMove.x && move.y == targetMove.y)
-            return Move(move.x, move.y);
+            return move;
     }
     // return the index where the move is
     return Move(-1, -1);
