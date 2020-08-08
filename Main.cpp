@@ -1,56 +1,81 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Node.h"
-#include "Mcts.cpp"
+#include <stdlib.h>
+#include "Tests.cpp"
 
 using namespace std;
 
-void testListMoves() {
-    State myState;
-    Reversi game;
-    vector<Move> moves = game.listMoves(myState.getState(), 'T', 'F');
-    Move testMove = moves.at(0);
+Move inputPlayer(Reversi game, State *state, char player) {
+    int x, y;
 
-    game.printBoard(myState.getState());
+    printf("Enter a X Y coordinate: ");
+    cin >> x >> y;
 
-    // make move also calls flippedTiles
-    vector<vector <char>> board = game.makeMove(myState.getState(), testMove);
-
-    game.printBoard(board);
-
-    printf("Possible Moves for T:\n");
-    for (auto &move: moves) {
-        printf("%d, %d\n", move.x, move.y);
-    }
+    return Move(x,y);
 }
 
-void testNodes() {
-    State *s1 = new State();
-    State *s2 = new State();
-    State *s3 = new State();
-    State *s4 = new State();
-    State *s5 = new State();
+Move mctsPlayer(Reversi game, State *state, char player) {
+    Node *root = new Node(state);
+    Move bestMove = basicMCTS(root, game, player);
+    delete root;
 
-    Node *n1 = new Node(s1);
-    Node *n2 = new Node(s2);
-    Node *n3 = new Node(s3);
-    Node *n4 = new Node(s4);
-    Node *n5 = new Node(s5);
+    return bestMove;
+}
 
-    n3->children.push_back(n4);
-    n3->children.push_back(n5);
+char startGame() {
+    Reversi game;
+    State *state = new State();
+    Move move1;
+    Move move2;
+    vector<Move> moves1 = game.listMoves(state->getState(), 'T', 'F');
+    vector<Move> moves2;
 
-    n1->children.push_back(n3);
-    n1->children.push_back(n2);
+    game.printBoard(state->getState());
 
-    delete n1;
+    while (true) {
+
+        if (moves1.size() > 0) {
+            do {
+                move1 = inputPlayer(game, state, 'T');
+                move1 = game.findMove(moves1, move1);
+            } while (move1.x == -1);
+            game.makeMove(state, move1);
+        }
+
+        // Check if game is over
+        moves1 = game.listMoves(state->getState(), 'T', 'F');
+        moves2 = game.listMoves(state->getState(), 'F', 'T');
+        if (game.checkWin(state->getState(), moves1.size(), moves2.size())) {
+            break;
+        }
+
+        game.printBoard(state->getState());
+
+        if (moves2.size() > 0) {
+            move2 = mctsPlayer(game, state, 'F');
+            move2 = game.findMove(moves2, move2);
+            game.makeMove(state, move2);
+        }
+
+        // Check if game is over
+        moves1 = game.listMoves(state->getState(), 'T', 'F');
+        moves2 = game.listMoves(state->getState(), 'F', 'T');
+        if (game.checkWin(state->getState(), moves1.size(), moves2.size())) {
+            break;
+        }
+
+        game.printBoard(state->getState());
+    }
+
+    return 'T';
 }
 
 int main() {
 
     // testListMoves();
-    testNodes();
+    // testNodes();
+    char winner = startGame();
     
     return 0;
 }
