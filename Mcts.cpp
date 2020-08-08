@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "Node.h"
+#include "Reversi.h"
 
 double uct(Node *root) {
 
@@ -45,45 +46,58 @@ Node* expand(Node *root, Reversi game) {
 
     char currentPlayer = root->state->getPlayer();
     char opponent = currentPlayer == 'T' ? 'F' : 'T';
-    vector<Move> moveList = game.listMoves(root->state->getState(), currentPlayer, opponent);
+    vector<Move> playerMoves = game.listMoves(root->state->getState(), currentPlayer, opponent);
+    vector<Move> oppMoves = game.listMoves(root->state->getState(), opponent, currentPlayer);
     int randomVal = 0;
 
-    // TODO: Need check is game over method
     // Check if the game is finished
-    for (auto &move: moveList) {
-        // Copy state and apply move
-        // Node *newNode = new Node();
-        Node *newNode;
-        root->children.push_back(newNode);
-    }
+    if (!game.checkWin(root->state->getState(), playerMoves.size(), oppMoves.size())) {
+        for (auto &move: playerMoves) {
 
-    randomVal = rand() % root->children.size();
-    return root->children[randomVal];
+            // Copy state and apply move
+            State *baseState = new State(root->state);
+            Node *newNode = new Node(baseState, root);
+            game.makeMove(newNode->state, move);
+            root->children.push_back(newNode);
+        }
+        randomVal = rand() % root->children.size();
+        return root->children[randomVal];
+    }
+    return root;
 }
 
-// TODO: Need game functions to simulate game
 int simulate(Node *root, Reversi game) {
     // Simulate the current state of the game until a win, loss or draw
 
     char currentPlayer = root->state->getPlayer();
+    char opponent = currentPlayer == 'T' ? 'F' : 'T';
     vector<vector<char>> tempState = root->state->getState();
+    vector<Move> moves1 = game.listMoves(root->state->getState(), currentPlayer, opponent);
+    vector<Move> moves2 = game.listMoves(root->state->getState(), opponent, currentPlayer);
+    int randVal = 0;
 
     while (true) {
 
         // Randomly select move from avaliable moves
+        randVal = rand() % moves1.size();
 
         // Make the move on the state
+        game.makeMove(root->state, moves1[randVal]);
 
-        // Toggle the current player
+        // Check if the game is done
+        moves1 = game.listMoves(root->state->getState(), currentPlayer, opponent);
+        moves2 = game.listMoves(root->state->getState(), opponent, currentPlayer);
+        if (game.checkWin(root->state->getState(), moves1.size(), moves2.size())) {
+            break;
+        }
+
+        // Toggle to the other view of the game
         currentPlayer = currentPlayer == 'T' ? 'F' : 'T';
+        opponent = currentPlayer == 'T' ? 'F' : 'T';
     }
 
-    // Toggle to the winning player
-    char winningPlayer = currentPlayer == 'T' ? 'F' : 'T';
-
-    // TODO: Get reward value from method
-
-    return 0;
+    // Return reward value from the perspective of the state's next turn
+    return game.reward(root->state->getState(), root->state->getPlayer());
 }
 
 void backpropgate(Node *root, double result) {
@@ -123,8 +137,8 @@ Move basicMCTS(Node *root, Reversi game, char player, int iterations=1000) {
     int result = 0;
 
     for (int i = 0; i < iterations; i++) {
-        *leaf = selection(root);
-        *child = expand(leaf, game);
+        leaf = selection(root);
+        child = expand(leaf, game);
         result = simulate(child, game);
         backpropgate(child, result);
     }
