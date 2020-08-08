@@ -131,7 +131,7 @@ Node* bestChild(Node *root) {
     return maxNode;
 }
 
-Move basicMCTS(Node *root, Reversi game, char player, int iterations=1000) {
+Move basicMCTS(Node *root, Reversi game, int iterations=1000) {
     Node *leaf = NULL;
     Node *child = NULL;
     int result = 0;
