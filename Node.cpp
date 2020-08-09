@@ -7,13 +7,15 @@ using namespace std;
 Node::Node(State *state) {
     this->state = state;
     this->parent = NULL;
+    this->action = Move(-1,-1);
     this->reward = 0;
     this->visits = 0;
 }
 
-Node::Node(State *state, Node *parent) {
+Node::Node(State *state, Node *parent, Move action) {
     this->state = state;
     this->parent = parent;
+    this->action = action;
     this->reward = 0;
     this->visits = 0;
 }
@@ -21,18 +23,17 @@ Node::Node(State *state, Node *parent) {
 Node::Node() {
     this->state = NULL;
     this->parent = NULL;
+    this->action = Move(-1,-1);
     this->reward = 0;
     this->visits = 0;
 }
 
 Node::~Node() {
 
-    // Delete the root state
-    delete this->state;
-
     // Need to delete the children as well
     if (this->children.size() > 0) {
         for (auto &child: children) {
+            delete child->state;
             delete child;
         }
     }

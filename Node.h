@@ -25,7 +25,7 @@ class Node {
 
         Node(State *state);
 
-        Node(State *state, Node *parent);
+        Node(State *state, Node *parent, Move action);
 
         Node();
 
