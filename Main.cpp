@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <tuple>
+#include <thread>
+#include <chrono>
 #include <stdlib.h>
 #include "Tests.cpp"
 
@@ -18,15 +21,15 @@ Move inputPlayer() {
     return Move(x,y);
 }
 
-Move mctsPlayer(Reversi game, State *state, char player) {
+Move mctsPlayer(Reversi game, State *state) {
     Node *root = new Node(state);
-    Move bestMove = basicMCTS(root, game, player);
+    Move bestMove = basicMCTS(root, game);
     delete root;
 
     return bestMove;
 }
 
-void startGame() {
+void startGame(vector<tuple<char, int, int>> &results, int index) {
     srand(time(0));
     Reversi game;
     State *state = new State();
@@ -35,7 +38,7 @@ void startGame() {
     vector<Move> moves1 = game.listMoves(state->getState(), 'T', 'F');
     vector<Move> moves2 = game.listMoves(state->getState(), 'F', 'T');
 
-    game.printBoard(state->getState());
+    // game.printBoard(state->getState());
 
     while (true) {
 
@@ -48,43 +51,81 @@ void startGame() {
             game.makeMove(state, move1);
         }
 
+        // game.printBoard(state->getState());
+
         // Check if game is over
         moves1 = game.listMoves(state->getState(), 'T', 'F');
         moves2 = game.listMoves(state->getState(), 'F', 'T');
         if (game.checkWin(state->getState(), moves1.size(), moves2.size()))
             break;
 
-        game.printBoard(state->getState());
 
         if (moves2.size() > 0) {
-            // move2 = mctsPlayer(game, state, 'F');
-            // move2 = game.findMove(moves2, move2);
-            move2 = randomPlayer(moves2);
+            move2 = mctsPlayer(game, state);
+            move2 = game.findMove(moves2, move2);
+            // printf("Player: %c X:%d Y:%d\n",move2.moveVal, move2.x, move2.y);
+            // move2 = randomPlayer(moves2);
             game.makeMove(state, move2);
         }
 
+        // game.printBoard(state->getState());
+
         // Check if game is over
         moves1 = game.listMoves(state->getState(), 'T', 'F');
         moves2 = game.listMoves(state->getState(), 'F', 'T');
         if (game.checkWin(state->getState(), moves1.size(), moves2.size()))
             break;
-
-        game.printBoard(state->getState());
     }
 
     char winner = game.winningPlayer(state->getState());
     int white, black;
     tie(white, black) = game.score(state->getState());
     delete state;
+    results[index] = make_tuple(winner, white, black);
 
-    printf("Winner: %c\nFinal Score - T:%d F%d\n", winner, white, black);
+    // printf("Winner: %c\nFinal Score - T:%d F:%d\n", winner, white, black);
 }
 
 int main() {
 
     // testListMoves();
     // testNodes();
-    startGame();
+    char winner;
+    int white, black;
+    int wWins = 0;
+    int bWins = 0;
+    int numGames = 20;
+    vector<thread> threads;
+    vector<tuple<char, int, int>> results(numGames);
+
+    auto start = chrono::high_resolution_clock::now();
+
+    printf("Playing %d games\n", numGames);
+    for (int i = 0; i < numGames; i++) {
+        threads.push_back(thread(startGame, ref(results), i));
+    }
+
+    for (auto &t:threads) {
+        if (t.joinable())
+            t.join();
+    }
+    auto end = chrono::high_resolution_clock::now();
+
+    for (auto &res:results) {
+        winner = get<0>(res);
+        white = get<1>(res);
+        black = get<2>(res);
+        if (winner == 'T')
+            wWins += 1;
+        else if (winner == 'F')
+            bWins += 1;
+        printf("Winner: %c\t\tFinal Score - T:%d F:%d\n", winner, white, black);
+    }
+    double winP = double(bWins)/double(numGames) * 100;
+
+    printf("whiteWins: %d\t\t blackWins: %d\t\t AI:%.2f%%\n", wWins, bWins, winP);
+    auto duration = chrono::duration_cast<chrono::seconds>(end - start);
+    std::cout << "Time: " << duration.count() << "s\n";
     
     return 0;
 }
