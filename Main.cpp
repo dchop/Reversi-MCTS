@@ -29,6 +29,113 @@ Move mctsPlayer(Reversi game, State *state) {
     return bestMove;
 }
 
+int countTiles(vector<vector<char> > const &board){
+    vector<vector<char> > tempBoard = board;
+    int maxT_tiles = 0;
+    int maxF_tiles = 0;
+    int max, min;
+    for (int i = 0; i < 8; ++i) { // initialize the board with '-'
+        for(int j = 0; j < 8; ++j) {
+            if(tempBoard[i][j] == 'T'){
+                maxT_tiles++;
+            }
+            else if(tempBoard[i][j] == 'F'){
+                maxF_tiles++;
+            }
+        } 
+    }
+    return maxT_tiles, maxF_tiles;
+}
+
+int coinParity(vector<vector<char> > const &board){
+    vector<vector<char> > tempBoard = board;
+    int maxT_tiles, maxF_tiles = countTiles(tempBoard);
+    int max, min;
+
+    if(maxT_tiles > maxF_tiles){
+        max = maxT_tiles;
+        min = maxF_tiles;
+    }
+    else{
+        max = maxF_tiles;
+        min = maxT_tiles;
+    }
+    int heuristicValue = 100 * (max - min)/(max + min);
+    return heuristicValue;
+}
+
+int mobilityHeuristic(vector<vector<char> > const &board){
+    vector<vector<char> > tempBoard = board;
+    Reversi tempGame;
+    int maxT_tiles, maxF_tiles = countTiles(tempBoard);
+    int max, min;
+
+    char maxPlayer, minPlayer;
+    if(maxT_tiles > maxF_tiles){
+        max = maxT_tiles;
+        min = maxF_tiles;
+        maxPlayer = 'T';
+        minPlayer = 'F';
+    }
+    else{
+        max = maxF_tiles;
+        min = maxT_tiles;
+        maxPlayer = 'F';
+        minPlayer = 'T';
+    }
+    int heuristicValue;
+    vector<Move> maxMoves = tempGame.listMoves(tempBoard, maxPlayer, minPlayer);
+    vector<Move> minMoves = tempGame.listMoves(tempBoard, minPlayer, maxPlayer);
+
+    if ( (maxMoves.size() + minMoves.size()) != 0){
+        heuristicValue = 100 * (maxMoves.size() - minMoves.size()) / (maxMoves.size() + minMoves.size());
+    }
+    else{
+        heuristicValue = 0;
+    }
+    return heuristicValue;
+}
+
+int checkCorners(vector<vector<char> > const &board, char player){
+    int numCorners = 0;
+    if(board[0][0] == player){numCorners++;}
+    if(board[7][0] == player){numCorners++;}
+    if(board[0][7] == player){numCorners++;}
+    if(board[7][7] == player){numCorners++;}
+    return numCorners;
+}
+
+int cornerHeuristic(vector<vector<char> > const &board){
+    vector<vector<char> > tempBoard = board;
+    int maxT_tiles, maxF_tiles = countTiles(tempBoard);
+    int max, min;
+
+    char maxPlayer, minPlayer;
+    if(maxT_tiles > maxF_tiles){
+        max = maxT_tiles;
+        min = maxF_tiles;
+        maxPlayer = 'T';
+        minPlayer = 'F';
+    }
+    else{
+        max = maxF_tiles;
+        min = maxT_tiles;
+        maxPlayer = 'F';
+        minPlayer = 'T';
+    }
+    int heuristicValue;
+    int maxCorners = checkCorners(tempBoard, maxPlayer);
+    int minCorners = checkCorners(tempBoard, minPlayer);
+
+    if ( (maxCorners + minCorners) != 0){
+        heuristicValue = 100 * (maxCorners - minCorners) / (maxCorners + minCorners);
+    }
+    else{
+        heuristicValue = 0;
+    }
+    return heuristicValue;
+}
+
 void startGame(vector<tuple<char, int, int>> &results, int index) {
     srand(time(0));
     Reversi game;
@@ -43,12 +150,27 @@ void startGame(vector<tuple<char, int, int>> &results, int index) {
     while (true) {
 
         if (moves1.size() > 0) {
+            int maxHeuristicValue = 0;
+            int currentHeuristicValue = 0;
+            int indexofMove = 0;
+            for (int i = 0; i < moves1.size(); i++){
+                State *tempState = new State();
+                tempState->getState() = state->getState();
+                game.makeMove(tempState, moves1.at(i));
+                currentHeuristicValue = cornerHeuristic(tempState->getState());
+                if (currentHeuristicValue > maxHeuristicValue){
+                    maxHeuristicValue = currentHeuristicValue;
+                    indexofMove = i;
+                }
+            }
+
+            // vector<vector<char> > = state->getState();
             // do {
             //     move1 = inputPlayer();
             //     move1 = game.findMove(moves1, move1);
             // } while (move1.x == -1);
-            move1 = randomPlayer(moves1);
-            game.makeMove(state, move1);
+            // move1 = randomPlayer(moves1);
+            game.makeMove(state, moves1.at(indexofMove));
         }
 
         // game.printBoard(state->getState());
