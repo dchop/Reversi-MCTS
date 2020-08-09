@@ -72,10 +72,8 @@ int Reversi::reward(vector<vector<char>> const &board, char const &player) {
     char winner = this->winningPlayer(board);
     char opponent = player == 'T' ? 'F' : 'T';
 
-    if (winner == player) 
+    if (winner == player || winner == opponent) 
         return 1;
-    else if (winner == opponent)
-        return -1;
     else // Game resulted in draw
         return 0;
 }

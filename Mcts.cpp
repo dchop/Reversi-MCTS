@@ -2,6 +2,7 @@
 #include <vector>
 #include <math.h>
 #include <stdlib.h>
+#include <chrono>
 #include "Node.h"
 #include "Reversi.h"
 
@@ -23,11 +24,12 @@ Node* selection(Node *root) {
 
     Node *temp = root;
     double val = 0;
-    double max = -INFINITY;
+    double max;
 
     // Traverse down the tree by taking the path with the largest UCT value at level
     while (temp->children.size() > 0) {
 
+        max = -INFINITY;
         for (auto &child: temp->children) {
 
             val = uct(child);
@@ -36,7 +38,6 @@ Node* selection(Node *root) {
                 max = val;
             }
         }
-
     }
     return temp;
 }
@@ -52,16 +53,19 @@ Node* expand(Node *root, Reversi game) {
 
     // Check if the game is finished
     if (!game.checkWin(root->state->getState(), playerMoves.size(), oppMoves.size())) {
-        for (auto &move: playerMoves) {
+        if (playerMoves.size() > 0) {
+            for (auto &move: playerMoves) {
 
-            // Copy state and apply move
-            State *baseState = new State(root->state);
-            Node *newNode = new Node(baseState, root);
-            game.makeMove(newNode->state, move);
-            root->children.push_back(newNode);
+                // Copy state and apply move
+                State *baseState = new State(root->state);
+                Node *newNode = new Node(baseState, root, move);
+                game.makeMove(newNode->state, move);
+                root->children.push_back(newNode);
+            }
+            randomVal = rand() % root->children.size();
+
+            return root->children[randomVal];
         }
-        randomVal = rand() % root->children.size();
-        return root->children[randomVal];
     }
     return root;
 }
@@ -75,14 +79,18 @@ int simulate(Node *root, Reversi game) {
     vector<Move> moves1 = game.listMoves(root->state->getState(), currentPlayer, opponent);
     vector<Move> moves2 = game.listMoves(root->state->getState(), opponent, currentPlayer);
     int randVal = 0;
+    int reward = 0;
+    char winner;
 
     while (true) {
 
-        // Randomly select move from avaliable moves
-        randVal = rand() % moves1.size();
+        if (moves1.size() > 0) {
+            // Randomly select move from avaliable moves
+            randVal = rand() % moves1.size();
 
-        // Make the move on the state
-        game.makeMove(root->state, moves1[randVal]);
+            // Make the move on the state
+            game.makeMove(root->state, moves1[randVal]);
+        }
 
         // Check if the game is done
         moves1 = game.listMoves(root->state->getState(), currentPlayer, opponent);
@@ -97,7 +105,9 @@ int simulate(Node *root, Reversi game) {
     }
 
     // Return reward value from the perspective of the state's next turn
-    return game.reward(root->state->getState(), root->state->getPlayer());
+    reward = game.reward(root->state->getState(), root->state->getPlayer());
+    winner = game.winningPlayer(root->state->getState());
+    return (winner != root->state->getPlayer()) ? reward : -reward;
 }
 
 void backpropgate(Node *root, double result) {
@@ -131,17 +141,20 @@ Node* bestChild(Node *root) {
     return maxNode;
 }
 
-Move basicMCTS(Node *root, Reversi game, int iterations=1000) {
+Move basicMCTS(Node *root, Reversi game, int duration=5) {
     Node *leaf = NULL;
     Node *child = NULL;
     int result = 0;
+    chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
 
-    for (int i = 0; i < iterations; i++) {
+    // for (int i = 0; i < iterations; i++) {
+    while (chrono::high_resolution_clock::now() - start < chrono::seconds(duration)) {
         leaf = selection(root);
         child = expand(leaf, game);
         result = simulate(child, game);
         backpropgate(child, result);
     }
 
+    // printf("MCTS finished!\n");
     return bestChild(root)->action;
 }
