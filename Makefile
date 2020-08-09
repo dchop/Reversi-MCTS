@@ -1,4 +1,4 @@
-CPPFLAGS = -std=c++14 -Wall -Wextra -Wfatal-errors -Wno-sign-compare -Wnon-virtual-dtor -g
+CPPFLAGS = -std=c++14 -pthread -Wall -Wextra -Wfatal-errors -Wno-sign-compare -Wnon-virtual-dtor -g
 
 all: clean build run
 
