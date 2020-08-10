@@ -3,7 +3,7 @@ CPPFLAGS = -std=c++14 -pthread -Wall -Wextra -Wfatal-errors -Wno-sign-compare -W
 all: clean build run
 
 build:
-	g++ $(CPPFLAGS) Main.cpp Reversi.cpp State.cpp Node.cpp -o game
+	g++ $(CPPFLAGS) Main.cpp Reversi.cpp State.cpp Node.cpp Player.cpp -o game
 
 run:
 	./game
