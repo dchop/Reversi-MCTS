@@ -1,2 +1,9 @@
+# Executable
 game
+
+# Scratch notepad
 scratch.md
+
+# Computer specific settings
+.vscode/
+game.dSYM/
