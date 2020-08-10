@@ -121,9 +121,9 @@ int main(int argc, char* argv[]) {
     // Parse commandline arguments
     cxxopts::Options options("./game", "A Reversi game using the MCTS algorithm");
     options.add_options()
-        ("p,player", "Choose what algorithm to use to select a move: 0-pureMCTS, 1-improvedMCTS,"
+        ("p,player", "Choose what algorithm to use to select a move: 0-pureMCTS, 1-improvedMCTS, "
             "2-inputPlayer, 3-randomPlayer", cxxopts::value<int>()->default_value("3"))
-        ("o,opponent", "Choose what algorithm to use to select a move: 0-pureMCTS, 1-improvedMCTS,"
+        ("o,opponent", "Choose what algorithm to use to select a move: 0-pureMCTS, 1-improvedMCTS, "
             "2-inputPlayer, 3-randomPlayer", cxxopts::value<int>()->default_value("0"))
         ("n,numgames", "The number of games to be ran", cxxopts::value<int>()->
             default_value("50"))
