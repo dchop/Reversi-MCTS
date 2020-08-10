@@ -29,11 +29,12 @@ Move mctsPlayer(Reversi game, State *state) {
     return bestMove;
 }
 
-int countTiles(vector<vector<char> > const &board){
+
+int coinParity(vector<vector<char> > const &board){
     vector<vector<char> > tempBoard = board;
     int maxT_tiles = 0;
     int maxF_tiles = 0;
-    int max, min;
+
     for (int i = 0; i < 8; ++i) { // initialize the board with '-'
         for(int j = 0; j < 8; ++j) {
             if(tempBoard[i][j] == 'T'){
@@ -44,12 +45,6 @@ int countTiles(vector<vector<char> > const &board){
             }
         } 
     }
-    return maxT_tiles, maxF_tiles;
-}
-
-int coinParity(vector<vector<char> > const &board){
-    vector<vector<char> > tempBoard = board;
-    int maxT_tiles, maxF_tiles = countTiles(tempBoard);
     int max, min;
 
     if(maxT_tiles > maxF_tiles){
@@ -67,7 +62,18 @@ int coinParity(vector<vector<char> > const &board){
 int mobilityHeuristic(vector<vector<char> > const &board){
     vector<vector<char> > tempBoard = board;
     Reversi tempGame;
-    int maxT_tiles, maxF_tiles = countTiles(tempBoard);
+    int maxT_tiles = 0;
+    int maxF_tiles = 0;
+    for (int i = 0; i < 8; ++i) { // initialize the board with '-'
+        for(int j = 0; j < 8; ++j) {
+            if(tempBoard[i][j] == 'T'){
+                maxT_tiles++;
+            }
+            else if(tempBoard[i][j] == 'F'){
+                maxF_tiles++;
+            }
+        } 
+    }
     int max, min;
 
     char maxPlayer, minPlayer;
@@ -107,7 +113,18 @@ int checkCorners(vector<vector<char> > const &board, char player){
 
 int cornerHeuristic(vector<vector<char> > const &board){
     vector<vector<char> > tempBoard = board;
-    int maxT_tiles, maxF_tiles = countTiles(tempBoard);
+    int maxT_tiles = 0;
+    int maxF_tiles = 0;
+    for (int i = 0; i < 8; ++i) { // initialize the board with '-'
+        for(int j = 0; j < 8; ++j) {
+            if(tempBoard[i][j] == 'T'){
+                maxT_tiles++;
+            }
+            else if(tempBoard[i][j] == 'F'){
+                maxF_tiles++;
+            }
+        } 
+    }
     int max, min;
 
     char maxPlayer, minPlayer;
@@ -136,6 +153,15 @@ int cornerHeuristic(vector<vector<char> > const &board){
     return heuristicValue;
 }
 
+int maxOfCornerAndParity(vector<vector<char> > const &board){
+    int cornerVal = cornerHeuristic(board);
+    int parityVal = coinParity(board);
+    if (cornerVal > parityVal){
+        return cornerVal;
+    }
+    else{return parityVal;}
+}
+
 void startGame(vector<tuple<char, int, int>> &results, int index) {
     srand(time(0));
     Reversi game;
@@ -157,7 +183,7 @@ void startGame(vector<tuple<char, int, int>> &results, int index) {
                 State *tempState = new State();
                 tempState->getState() = state->getState();
                 game.makeMove(tempState, moves1.at(i));
-                currentHeuristicValue = cornerHeuristic(tempState->getState());
+                currentHeuristicValue = maxOfCornerAndParity(tempState->getState());
                 if (currentHeuristicValue > maxHeuristicValue){
                     maxHeuristicValue = currentHeuristicValue;
                     indexofMove = i;
@@ -216,7 +242,7 @@ int main() {
     int white, black;
     int wWins = 0;
     int bWins = 0;
-    int numGames = 20;
+    int numGames = 50;
     vector<thread> threads;
     vector<tuple<char, int, int>> results(numGames);
 
