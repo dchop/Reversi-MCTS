@@ -5,19 +5,18 @@ SRC = $(wildcard $(SRCDIR)/*.cpp)
 INC = -I include
 BIN = bin/game
 
-all: clean build
+all: clean build run
 
 build:
 	g++ $(CPPFLAGS) $(LIB) $(SRC) $(INC) -o $(BIN)
 
 run:
-	./bin/game
+	./$(BIN)
 	
 clean:
-	rm -f *.o* *.out* game
+	rm -f *.o* *.out* $(BIN)
 
 mem: clean build mem-check
 
 mem-check:
-	valgrind --leak-check=full ./game
-
+	valgrind --leak-check=full ./$(BIN)

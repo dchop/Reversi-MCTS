@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "Player.h"
 #include "Node.h"
-#include "Mcts.cpp"
+#include "Mcts.h"
 using namespace std;
 
 Player::Player(){
