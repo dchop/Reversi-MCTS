@@ -1,3 +1,5 @@
+#ifndef MCTS_H
+#define MCTS_H
 #include <iostream>
 #include <vector>
 #include <math.h>
@@ -261,3 +263,5 @@ Move improvedMCTS(Node *root, Reversi game, int duration=5) {
 
     return bestChild(root)->action;
 }
+
+#endif
