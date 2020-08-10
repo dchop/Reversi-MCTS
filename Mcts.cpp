@@ -52,7 +52,8 @@ Node* expand(Node *root, Reversi game) {
     int randomVal = 0;
 
     // Check if the game is finished
-    if (!game.checkWin(root->state->getState(), playerMoves.size(), oppMoves.size())) {
+    if (!game.checkWin(root->state->getState(), playerMoves.size(), oppMoves.size()) && root->children.size() == 0) {
+    // if (!game.checkWin(root->state->getState(), playerMoves.size(), oppMoves.size())) {
         if (playerMoves.size() > 0) {
             for (auto &move: playerMoves) {
 
@@ -145,7 +146,9 @@ Move basicMCTS(Node *root, Reversi game, int duration=5) {
     Node *leaf = NULL;
     Node *child = NULL;
     int result = 0;
+    int numIterations = 0;
     chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
+    // int iterations = 5000;
 
     // for (int i = 0; i < iterations; i++) {
     while (chrono::high_resolution_clock::now() - start < chrono::seconds(duration)) {
@@ -153,7 +156,10 @@ Move basicMCTS(Node *root, Reversi game, int duration=5) {
         child = expand(leaf, game);
         result = simulate(child, game);
         backpropgate(child, result);
+        numIterations += 1;
     }
+
+    root->state->addIterations(numIterations);
 
     // printf("MCTS finished!\n");
     return bestChild(root)->action;

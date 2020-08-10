@@ -20,15 +20,15 @@ State::State() {
     board[4][3] = 'F';
     board[4][4] = 'T';
     
-
-    // Black moves first
-    nextPlayer = 'F';
+    nextPlayer = 'T';
+    this->numIterations = 0;
 }
 
 State::State(const State *s2) {
 
     this->nextPlayer = s2->nextPlayer;
     this->board = s2->board;
+    this->numIterations = s2->numIterations;
 }
 
 vector<vector<char> > State::getState() {
@@ -37,6 +37,19 @@ vector<vector<char> > State::getState() {
 
 char State::getPlayer() {
     return this->nextPlayer;
+}
+
+int State::getIterations() {
+    return this->numIterations;
+}
+
+void State::togglePlayer() {
+    char currentPlayer = this->nextPlayer;
+    this->nextPlayer = (currentPlayer == 'T') ? 'F' : 'T';
+}
+
+void State::addIterations(int iterations) {
+    this->numIterations += iterations;
 }
 
 void State::setMove(Move &pMove, char val) {

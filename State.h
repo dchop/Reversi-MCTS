@@ -18,11 +18,20 @@ class State {
 
         char getPlayer();
 
+        void togglePlayer();
+
+        int getIterations();
+
+        void addIterations(int iterations);
+
         void setMove(Move &playerMove, char val);
 
     private:
         // Indicates who makes the next move for the current board state
         char nextPlayer;
+
+        // Number of iterations ran on the state;
+        int numIterations;
 
         // Holds the board state
         vector<vector<char> > board;
