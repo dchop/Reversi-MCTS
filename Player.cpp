@@ -19,19 +19,22 @@ Player::Player(char player, int moveType) {
 
 Move Player::getMove(Reversi game, State *state, vector<Move>const &moves) {
 
+    // pureMCTS
     if (this->moveType == 0) {
-        // pureMCTS
         Node *root = new Node(state);
         Move bestMove = basicMCTS(root, game);
         delete root;
         return game.findMove(moves, bestMove);
     }
+    // improvedMCTS
     else if (this->moveType == 1) {
-        // improvedMCTS
-        return Move(-1,-1);
+        Node *root = new Node(state);
+        Move bestMove = improvedMCTS(root, game);
+        delete root;
+        return game.findMove(moves, bestMove);
     }
+    // inputPlayer
     else if (this->moveType == 2) {
-        // inputPlayer
         int x, y;
         Move result;
 
@@ -46,8 +49,8 @@ Move Player::getMove(Reversi game, State *state, vector<Move>const &moves) {
 
         return result;
     }
+    // randomPlayer
     else {
-        // randomPlayer
         return moves[rand() % moves.size()];
     }
 }
