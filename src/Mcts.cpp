@@ -182,6 +182,24 @@ Node* bestChild(Node *root) {
     return maxNode;
 }
 
+// Returns the node with the highest reward value
+Node* bestChildWins(Node *root) {
+
+    Node *maxNode = NULL;
+    double val = 0;
+    double max = -INFINITY;
+
+    for (auto &child: root->children) {
+        
+        val = child->reward;
+        if (val > max) {
+            maxNode = child;
+            max = val;
+        }
+    }
+    return maxNode;
+}
+
 // Base MCTS algorithm with UCT and random playouts
 Move basicMCTS(Node *root, Reversi game, Player &player, int duration) {
     Node *leaf = NULL;
@@ -207,7 +225,7 @@ Move basicMCTS(Node *root, Reversi game, Player &player, int duration) {
     double totalTime = chrono::duration_cast<chrono::duration<double>>(tEnd - tStart).count();
     player.searchTime += totalTime;
 
-    return bestChild(root)->action;
+    return bestChildWins(root)->action;
 }
 
 // MCTS algorithm with UCT and heuristic driven playouts
