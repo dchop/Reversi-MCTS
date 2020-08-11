@@ -46,18 +46,13 @@ int mobilityHeuristic(vector<vector<char> > const &board){
             }
         } 
     }
-    int max, min;
 
     char maxPlayer, minPlayer;
     if(maxT_tiles > maxF_tiles){
-        max = maxT_tiles;
-        min = maxF_tiles;
         maxPlayer = 'T';
         minPlayer = 'F';
     }
     else{
-        max = maxF_tiles;
-        min = maxT_tiles;
         maxPlayer = 'F';
         minPlayer = 'T';
     }
@@ -97,18 +92,13 @@ int cornerHeuristic(vector<vector<char> > const &board){
             }
         } 
     }
-    int max, min;
 
     char maxPlayer, minPlayer;
     if(maxT_tiles > maxF_tiles){
-        max = maxT_tiles;
-        min = maxF_tiles;
         maxPlayer = 'T';
         minPlayer = 'F';
     }
     else{
-        max = maxF_tiles;
-        min = maxT_tiles;
         maxPlayer = 'F';
         minPlayer = 'T';
     }
