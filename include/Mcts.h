@@ -2,6 +2,7 @@
 #define MCTS_H
 #include "Node.h"
 #include "Reversi.h"
+#include "Player.h"
 
 double uct(Node *root);
 
@@ -21,8 +22,8 @@ void improvedBackprop(Node *root, double result);
 
 Node* bestChild(Node *root);
 
-Move basicMCTS(Node *root, Reversi game, int duration=5);
+Move basicMCTS(Node *root, Reversi game, Player &player, int duration=5);
 
-Move improvedMCTS(Node *root, Reversi game, int duration=5);
+Move improvedMCTS(Node *root, Reversi game, Player &player, int duration=5);
 
 #endif
