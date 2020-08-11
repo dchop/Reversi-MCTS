@@ -4,7 +4,9 @@
 #include <stdlib.h>
 #include <chrono>
 #include "Mcts.h"
+#include "Heuristics.h"
 
+// Used to balance exploitation and exploration between the MCTS tree
 double uct(Node *root) {
 
     double visits = root->visits;
@@ -18,31 +20,8 @@ double uct(Node *root) {
     return reward / visits + c * sqrt(log(pVisits) / visits);
 }
 
+// Find the best leaf node
 Node* select(Node *root) {
-    // Find the best leaf node
-
-    Node *temp = root;
-    double val = 0;
-    double max;
-
-    // Traverse down the tree by taking the path with the largest win percentage
-    while (temp->children.size() > 0) {
-
-        max = -INFINITY;
-        for (auto &child: temp->children) {
-
-            val = child->reward / child->visits;
-            if (val > max) {
-                temp = child;
-                max = val;
-            }
-        }
-    }
-    return temp;
-}
-
-Node* improvedSelect(Node *root) {
-    // Find the best leaf node
 
     Node *temp = root;
     double val = 0;
@@ -64,8 +43,8 @@ Node* improvedSelect(Node *root) {
     return temp;
 }
 
+// Expand all possible states from root
 Node* expand(Node *root, Reversi game) {
-    // Expand all possible states from root
 
     char currentPlayer = root->state->getPlayer();
     char opponent = currentPlayer == 'T' ? 'F' : 'T';
@@ -75,7 +54,6 @@ Node* expand(Node *root, Reversi game) {
 
     // Check if the game is finished
     if (!game.checkWin(root->state->getState(), playerMoves.size(), oppMoves.size()) && root->children.size() == 0) {
-    // if (!game.checkWin(root->state->getState(), playerMoves.size(), oppMoves.size())) {
         if (playerMoves.size() > 0) {
             for (auto &move: playerMoves) {
 
@@ -93,8 +71,8 @@ Node* expand(Node *root, Reversi game) {
     return root;
 }
 
+// Simulate the current state of the game until a win, loss or draw
 int simulate(Node *root, Reversi game) {
-    // Simulate the current state of the game until a win, loss or draw
 
     char currentPlayer = root->state->getPlayer();
     char opponent = currentPlayer == 'T' ? 'F' : 'T';
@@ -115,46 +93,47 @@ int simulate(Node *root, Reversi game) {
             game.makeMove(root->state, moves1[randVal]);
         }
 
+        // Toggle to the other perspective of the game
+        currentPlayer = currentPlayer == 'T' ? 'F' : 'T';
+        opponent = currentPlayer == 'T' ? 'F' : 'T';
+
         // Check if the game is done
         moves1 = game.listMoves(root->state->getState(), currentPlayer, opponent);
         moves2 = game.listMoves(root->state->getState(), opponent, currentPlayer);
         if (game.checkWin(root->state->getState(), moves1.size(), moves2.size())) {
             break;
         }
-
-        // Toggle to the other view of the game
-        currentPlayer = currentPlayer == 'T' ? 'F' : 'T';
-        opponent = currentPlayer == 'T' ? 'F' : 'T';
     }
 
     // Return reward value from the perspective of the state's next turn
     reward = game.reward(root->state->getState(), root->state->getPlayer());
     winner = game.winningPlayer(root->state->getState());
-    return (winner != root->state->getPlayer()) ? reward : -reward;
+    return (winner == root->state->getPlayer()) ? reward : -reward;
 }
 
-// TODO: Include heuristics to select moves instead of randomly choosing them
+// Simulate the current state of the game until a win, loss or draw
 int improvedSimulate(Node *root, Reversi game) {
-    // Simulate the current state of the game until a win, loss or draw
 
     char currentPlayer = root->state->getPlayer();
     char opponent = currentPlayer == 'T' ? 'F' : 'T';
     vector<vector<char>> tempState = root->state->getState();
     vector<Move> moves1 = game.listMoves(root->state->getState(), currentPlayer, opponent);
     vector<Move> moves2 = game.listMoves(root->state->getState(), opponent, currentPlayer);
-    int randVal = 0;
     int reward = 0;
+    Move move1;
+    Move move2;
     char winner;
 
     while (true) {
 
         if (moves1.size() > 0) {
-            // Randomly select move from avaliable moves
-            randVal = rand() % moves1.size();
-
-            // Make the move on the state
-            game.makeMove(root->state, moves1[randVal]);
+            move1 = findBestMove(game, root->state, moves1);
+            game.makeMove(root->state, move1);
         }
+
+        // Toggle to the other perspective of the game
+        currentPlayer = currentPlayer == 'T' ? 'F' : 'T';
+        opponent = currentPlayer == 'T' ? 'F' : 'T';
 
         // Check if the game is done
         moves1 = game.listMoves(root->state->getState(), currentPlayer, opponent);
@@ -162,32 +141,16 @@ int improvedSimulate(Node *root, Reversi game) {
         if (game.checkWin(root->state->getState(), moves1.size(), moves2.size())) {
             break;
         }
-
-        // Toggle to the other view of the game
-        currentPlayer = currentPlayer == 'T' ? 'F' : 'T';
-        opponent = currentPlayer == 'T' ? 'F' : 'T';
     }
 
     // Return reward value from the perspective of the state's next turn
     reward = game.reward(root->state->getState(), root->state->getPlayer());
     winner = game.winningPlayer(root->state->getState());
-    return (winner != root->state->getPlayer()) ? reward : -reward;
+    return (winner == root->state->getPlayer()) ? reward : -reward;
 }
 
+// Update all values from root to node
 void backprop(Node *root, double result) {
-    // Update all values from root to node
-
-    Node *temp = root;
-
-    while (temp != NULL) {
-        temp->visits += 1;
-        temp->reward += result;
-        temp = temp->parent;
-    }
-}
-
-void improvedBackprop(Node *root, double result) {
-    // Update all values from root to node
 
     Node *temp = root;
 
@@ -195,12 +158,13 @@ void improvedBackprop(Node *root, double result) {
         temp->visits += 1;
         temp->reward += result;
 
-        // Include perspective view of node at each level of the tree
+        // Includes perspective view of node at each level of the tree
         result = -result;
         temp = temp->parent;
     }
 }
 
+// Returns the node with the highest number of visits
 Node* bestChild(Node *root) {
 
     Node *maxNode = NULL;
@@ -218,45 +182,58 @@ Node* bestChild(Node *root) {
     return maxNode;
 }
 
-Move basicMCTS(Node *root, Reversi game, int duration) {
+// Base MCTS algorithm with UCT and random playouts
+Move basicMCTS(Node *root, Reversi game, Player &player, int duration) {
     Node *leaf = NULL;
     Node *child = NULL;
     int result = 0;
     int numIterations = 0;
+    auto tStart = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
 
     while (chrono::high_resolution_clock::now() - start < chrono::seconds(duration)) {
-        // TODO: Change to regular select after heuristics implemented into simulate phase
-        leaf = improvedSelect(root);
+        leaf = select(root);
         child = expand(leaf, game);
         result = simulate(child, game);
-        improvedBackprop(child, result);
+        backprop(child, result);
         numIterations += 1;
     }
 
-    root->state->addIterations(numIterations);
+    // Count the number of iterations ran
+    player.iterations += numIterations;
+
+    // Add up the time spent searching moves
+    auto tEnd = chrono::high_resolution_clock::now();
+    double totalTime = chrono::duration_cast<chrono::duration<double>>(tEnd - tStart).count();
+    player.searchTime += totalTime;
 
     return bestChild(root)->action;
 }
 
-// Uses UCT with heuristics
-Move improvedMCTS(Node *root, Reversi game, int duration) {
+// MCTS algorithm with UCT and heuristic driven playouts
+Move improvedMCTS(Node *root, Reversi game, Player &player, int duration) {
     Node *leaf = NULL;
     Node *child = NULL;
     int result = 0;
     int numIterations = 0;
+    auto tStart = chrono::high_resolution_clock::now();
     chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
 
     while (chrono::high_resolution_clock::now() - start < chrono::seconds(duration)) {
-        leaf = improvedSelect(root);
+        leaf = select(root);
         child = expand(leaf, game);
-        // TODO: Include heuristics in new simulation function
         result = improvedSimulate(child, game);
-        improvedBackprop(child, result);
+        backprop(child, result);
         numIterations += 1;
     }
 
-    root->state->addIterations(numIterations);
+    // Count the number of iterations ran
+    player.iterations += numIterations;
+
+    // Add up the time spent searching moves
+    auto tEnd = chrono::high_resolution_clock::now();
+    double totalTime = chrono::duration_cast<chrono::duration<double>>(tEnd - tStart).count();
+    player.searchTime += totalTime;
 
     return bestChild(root)->action;
 }
