@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 #include <iostream>
-#include "Mcts.h"
+#include "Reversi.h"
 using namespace std;
 
 class Player {
@@ -12,7 +12,8 @@ class Player {
         char player;
         string playerType;
         int moveType;
-        int numWins;
+        int iterations;
+        double searchTime;
         Move getMove(Reversi game, State *state, vector<Move> const &moves);
 };
 

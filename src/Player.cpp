@@ -1,33 +1,38 @@
 #include <iostream>
 #include <stdlib.h>
+#include <chrono>
 #include "Player.h"
+#include "Mcts.h"
 using namespace std;
 
 Player::Player(){
     this->player = 'T';
-    this->numWins = 0;
+    this->iterations = 0;
+    this->searchTime = 0;
     this->moveType = 3;
 }
 
 Player::Player(char player, int moveType) {
     this->player = player;
-    this->numWins = 0;
+    this->iterations = 0;
+    this->searchTime = 0;
     this->moveType = moveType;
 }
 
+// Interface function to get a move based on the moveType
 Move Player::getMove(Reversi game, State *state, vector<Move>const &moves) {
 
     // pureMCTS
     if (this->moveType == 0) {
         Node *root = new Node(state);
-        Move bestMove = basicMCTS(root, game);
+        Move bestMove = basicMCTS(root, game, *this);
         delete root;
         return game.findMove(moves, bestMove);
     }
     // improvedMCTS
     else if (this->moveType == 1) {
         Node *root = new Node(state);
-        Move bestMove = improvedMCTS(root, game);
+        Move bestMove = improvedMCTS(root, game, *this);
         delete root;
         return game.findMove(moves, bestMove);
     }

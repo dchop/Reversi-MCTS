@@ -10,7 +10,9 @@ State::State() {
     for (int i = 0; i < 8; ++i){
         board.push_back(vector<char>(8));
     }
-    for (int i = 0; i < 8; ++i) { // initialize the board with '-'
+
+    // Initialize the board with '-'
+    for (int i = 0; i < 8; ++i) {
         for(int j = 0; j < 8; ++j) {
             board[i][j] = '-';
         } 
@@ -21,14 +23,12 @@ State::State() {
     board[4][4] = 'T';
     
     nextPlayer = 'T';
-    this->numIterations = 0;
 }
 
+// To be used during the expansion phase and when finding the best move using heuristics
 State::State(const State *s2) {
-
     this->nextPlayer = s2->nextPlayer;
     this->board = s2->board;
-    this->numIterations = s2->numIterations;
 }
 
 vector<vector<char> > State::getState() {
@@ -39,17 +39,10 @@ char State::getPlayer() {
     return this->nextPlayer;
 }
 
-int State::getIterations() {
-    return this->numIterations;
-}
-
+// Toggle to the player who will make the next move on the board
 void State::togglePlayer() {
     char currentPlayer = this->nextPlayer;
     this->nextPlayer = (currentPlayer == 'T') ? 'F' : 'T';
-}
-
-void State::addIterations(int iterations) {
-    this->numIterations += iterations;
 }
 
 void State::setMove(Move &pMove, char val) {
