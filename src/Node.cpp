@@ -12,6 +12,7 @@ Node::Node(State *state) {
     this->visits = 0;
 }
 
+// To be used during the expansion phase of MCTS
 Node::Node(State *state, Node *parent, Move action) {
     this->state = state;
     this->parent = parent;
@@ -30,12 +31,10 @@ Node::Node() {
 
 Node::~Node() {
 
-    // Need to delete the children as well
     if (this->children.size() > 0) {
         for (auto &child: children) {
             delete child->state;
             delete child;
         }
     }
-
 }

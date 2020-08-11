@@ -7,7 +7,7 @@ int coinParity(vector<vector<char> > const &board){
     int maxT_tiles = 0;
     int maxF_tiles = 0;
 
-    for (int i = 0; i < 8; ++i) { // initialize the board with '-'
+    for (int i = 0; i < 8; ++i) {
         for(int j = 0; j < 8; ++j) {
             if(tempBoard[i][j] == 'T'){
                 maxT_tiles++;
@@ -36,7 +36,7 @@ int mobilityHeuristic(vector<vector<char> > const &board){
     Reversi tempGame;
     int maxT_tiles = 0;
     int maxF_tiles = 0;
-    for (int i = 0; i < 8; ++i) { // initialize the board with '-'
+    for (int i = 0; i < 8; ++i) {
         for(int j = 0; j < 8; ++j) {
             if(tempBoard[i][j] == 'T'){
                 maxT_tiles++;
