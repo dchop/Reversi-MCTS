@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "cxxopts.h"
 #include "Player.h"
+#include "Heuristics.h"
 
 using namespace std;
 
@@ -31,7 +32,8 @@ void startGame(vector<tuple<char, int, int, int, double>> &results, int index, i
     while (true) {
 
         if (moves1.size() > 0) {
-            move1 = p1.getMove(game, state, moves1);
+            // move1 = p1.getMove(game, state, moves1);
+            move1 = findBestMove(game, state, moves1);
             game.makeMove(state, move1);
         }
         state->togglePlayer();
@@ -72,7 +74,8 @@ void startGame(vector<tuple<char, int, int, int, double>> &results, int index, i
 }
 
 // Display the winner, score, number of iterations used in MCTS, length of game (s)
-void displayResults(vector<tuple<char, int, int, int, double>> results, double time) {
+void displayResults(vector<tuple<char, int, int, int, double>> results, double const time,
+    int const numGames) {
 
     char winner;
     int wWins = 0;
@@ -86,16 +89,17 @@ void displayResults(vector<tuple<char, int, int, int, double>> results, double t
         else if (winner == 'F')
             bWins += 1;
 
-        printf("%c\t\t\t%d-%d\t\t%d\t\t%f\n", winner, get<1>(res), get<2>(res), get<3>(res),
+        printf("%c\t\t\t%d-%d\t\t\t%d\t\t%f\n", winner, get<1>(res), get<2>(res), get<3>(res),
             get<4>(res));
     }
 
     printf("Player1Wins: %d\t\t Player2Wins: %d\n", wWins, bWins);
+    printf("P1: %.2f%%\t\t P2: %.2f%%\n", double(wWins)/numGames*100, double(bWins)/numGames*100);
     std::cout << "Total Time: " << time << "s\n";
 }
 
 // Use threading to simulate multiple games 
-void simulateGames(int const numGames, int p1, int p2, bool display) {
+void simulateGames(int const numGames, int const p1, int const p2, bool const display) {
 
     vector<thread> threads;
     vector<tuple<char, int, int, int, double>> results(numGames);
@@ -113,7 +117,7 @@ void simulateGames(int const numGames, int p1, int p2, bool display) {
     auto end = chrono::high_resolution_clock::now();
     double duration = chrono::duration_cast<chrono::duration<double>>(end - start).count();
 
-    displayResults(results, duration);
+    displayResults(results, duration, numGames);
 }
 
 int main(int argc, char* argv[]) {
@@ -141,7 +145,6 @@ int main(int argc, char* argv[]) {
     int p2Type = result["o"].as<int>();
     int numGames = (p1Type == 2 || p2Type == 2) ? 1 : result["n"].as<int>();
     bool displayBoard = (p1Type == 2 || p2Type == 2) ? true : false;
-
     simulateGames(numGames, p1Type, p2Type, displayBoard);
 
     return 0;

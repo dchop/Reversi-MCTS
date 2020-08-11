@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 #include <iostream>
-#include "Reversi.h"
+#include "Mcts.h"
 using namespace std;
 
 class Player {

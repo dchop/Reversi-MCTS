@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Mcts.cpp"
+#include "Mcts.h"
 
 using namespace std;
 

@@ -1,8 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include "Player.h"
-#include "Node.h"
-#include "Mcts.h"
 using namespace std;
 
 Player::Player(){

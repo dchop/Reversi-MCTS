@@ -1,8 +1,5 @@
-#ifndef HEURISTICS_H
-#define HEURISTICS_H
 #include <vector>
-#include "Move.h"
-#include "Reversi.h"
+#include "Heuristics.h"
 using namespace std;
 
 int coinParity(vector<vector<char> > const &board){
@@ -137,4 +134,21 @@ int maxOfCornerAndParity(vector<vector<char> > const &board){
     else{return parityVal;}
 }
 
-#endif
+Move findBestMove(Reversi game, State *state, vector<Move> &moves) {
+    int maxHeuristicValue = 0;
+    int currentHeuristicValue = 0;
+    int indexofMove = 0;
+    vector<vector<char>> tempBoard;
+    for (int i = 0; i < moves.size(); i++){
+        State *tempState = new State(state);
+        game.makeMove(tempState, moves.at(i));
+        currentHeuristicValue = maxOfCornerAndParity(tempState->getState());
+        if (currentHeuristicValue > maxHeuristicValue){
+            maxHeuristicValue = currentHeuristicValue;
+            indexofMove = i;
+        }
+        delete tempState;
+        tempState = NULL;
+    }
+    return moves[indexofMove];
+}

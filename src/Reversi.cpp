@@ -140,7 +140,7 @@ vector<Move> Reversi::listMoves(vector<vector<char> > const &board, char current
                             }
                             Move tempMove = {x, y};
                             for(std::vector<Move>::size_type i = 0; i != possibleMoves.size(); i++) {
-                                if(possibleMoves[i].x == returnFromFindMove.x && possibleMoves[i].y){
+                                if(possibleMoves[i].x == returnFromFindMove.x && possibleMoves[i].y == returnFromFindMove.y){
                                     possibleMoves[i].tilesToFlip.push_back(tempMove);
                                     break;
                                 }
